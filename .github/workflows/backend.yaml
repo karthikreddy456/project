@@ -66,7 +66,7 @@ jobs:
         run: |
           IMAGE_TAG=${{ github.run_number }}
           docker build -t ${{ vars.BUILD_NAME }}:${ IMAGE_TAG } ./
-          docker tag ${{ vars.BUILD_NAME }}:${ IMAGE_TAG } ${{ vars.ECR_REPOSITORY }}/${{ vars.BUILD_NAME }}:${{ IMAGE_TAG }}
+          docker tag ${{ vars.BUILD_NAME }}:${ IMAGE_TAG } ${{ vars.ECR_REPOSITORY }}/${{ vars.BUILD_NAME }}:${ IMAGE_TAG }
           docker push ${{ vars.ECR_REPOSITORY }}/${{ vars.BUILD_NAME }}:${ IMAGE_TAG }
 
 #   helm-deploy:
