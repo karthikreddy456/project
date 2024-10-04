@@ -24,7 +24,7 @@ jobs:
   set-environment:
     name: setup environments
     runs-on: ubuntu-20.04
-    environment: ${{ github.ref_name || github.event.inputs.branch }}
+    environment: ${{ github.event.inputs.branch }}
     steps:
       - name: Set up environment
         run: |
