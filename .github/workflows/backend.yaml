@@ -33,6 +33,7 @@ jobs:
   docker-build-package:
     name: Build and Package Maven Application
     runs-on: ubuntu-20.04
+    environment: ${{ github.event.inputs.branch }}
     needs: set-environment
 
     steps:
@@ -72,6 +73,7 @@ jobs:
 #   helm-deploy:
 #     name: Helm deploy
 #     runs-on: ubuntu-20.04
+#     environment: ${{ github.event.inputs.branch }}
 #     needs: [set-environment, docker-build-package]
 #     steps:
 #       - uses: actions/checkout@v4
