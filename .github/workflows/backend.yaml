@@ -52,7 +52,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.ROLE_GITHUB }}
+          role-to-assume: ${{ secrets.ACCESS_ROLE_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
     
