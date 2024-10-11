@@ -12,6 +12,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      
     - name: Install Azure CLI
       run: |
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -27,22 +28,14 @@ jobs:
         echo "RESOURCE_GROUP=Resourcegroup-test" >> $GITHUB_ENV
         echo "BASTION_HOST=windows-vnet-bastion" >> $GITHUB_ENV
         echo "USERNAME=karthik" >> $GITHUB_ENV
-        echo "PASSWORD=Karthik@2002" >> $GITHUB_ENV
-    # - name: Execute Bash Script
-    #   run: |
-    #     az vm run-command invoke \
-    #       --resource-group $RESOURCE_GROUP \
-    #       --name $VM_NAME \
-    #       --command-id RunPowerShellScript \
-    #       --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh > output.txt; cat output.txt' -Wait"
-  
+        echo "PASSWORD=${{ secrets.BASTION_PASSWORD }}" >> $GITHUB_ENV # Store the password securely in GitHub Secrets
 
-   - name: Check VM Connectivity and Execute Commands
+    - name: Check VM Connectivity and Execute Commands
       id: run_script
       run: |
         # Check if the VM is running
         az vm get-instance-view --resource-group $RESOURCE_GROUP --name $VM_NAME --query "powerState" -o tsv
-
+        
         # Run commands to change directory, list files, and run the echo.sh script
         output=$(az vm run-command invoke \
           --resource-group $RESOURCE_GROUP \
@@ -54,15 +47,4 @@ jobs:
         echo "Output from commands: $output"
 
     - name: Display output
-      run: echo "${{ steps.run_script.outputs.output }}"
-        
-    - name: Display output
-      run: echo "${{ steps.run_script.outputs.output }}"
-    # - name: Connect to VM via Bastion
-    #   run: |
-    #     az vm run-command invoke \
-    #       --resource-group $RESOURCE_GROUP \
-    #       --name $VM_NAME \
-    #       --command-id RunPowerShellScript \
-    #       --scripts "Write-Host 'Executing command on VM'; Get-Service | Where-Object {$_.Status -eq 'Running'}"
-
+      run: echo "Output from commands: ${{ steps.run_script.outputs.output }}"
