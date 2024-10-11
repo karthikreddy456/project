@@ -28,14 +28,29 @@ jobs:
         echo "BASTION_HOST=windows-vnet-bastion" >> $GITHUB_ENV
         echo "USERNAME=karthik" >> $GITHUB_ENV
         echo "PASSWORD=Karthik@2002" >> $GITHUB_ENV
-    - name: Execute Bash Script
+    # - name: Execute Bash Script
+    #   run: |
+    #     az vm run-command invoke \
+    #       --resource-group $RESOURCE_GROUP \
+    #       --name $VM_NAME \
+    #       --command-id RunPowerShellScript \
+    #       --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh > output.txt; cat output.txt' -Wait"
+
+
+    - name: Execute Bash Script and Create File
+      id: run_script
       run: |
-        az vm run-command invoke \
+        output=$(az vm run-command invoke \
           --resource-group $RESOURCE_GROUP \
           --name $VM_NAME \
           --command-id RunPowerShellScript \
-          --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh > output.txt; cat output.txt' -Wait"
-
+          --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh; echo \"This is a new file\" > karthik.txt' -Wait" \
+          --query "value[0].message" -o tsv)
+          
+        echo "Output from echo.sh: $output"
+        
+    - name: Display output
+      run: echo "${{ steps.run_script.outputs.output }}"
     # - name: Connect to VM via Bastion
     #   run: |
     #     az vm run-command invoke \
