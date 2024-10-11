@@ -34,7 +34,7 @@ jobs:
           --resource-group $RESOURCE_GROUP \
           --name $VM_NAME \
           --command-id RunPowerShellScript \
-          --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh' -Wait"
+          --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh > output.txt; cat output.txt' -Wait"
 
     # - name: Connect to VM via Bastion
     #   run: |
