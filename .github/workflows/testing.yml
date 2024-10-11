@@ -33,8 +33,8 @@ jobs:
         az vm run-command invoke \
           --resource-group $RESOURCE_GROUP \
           --name $VM_NAME \
-          --command-id RunShellScript \
-          --scripts "cd /c/Users/karthik && ./echo.sh"
+          --command-id RunPowerShellScript \
+          --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik && ./echo.sh'"
 
     # - name: Connect to VM via Bastion
     #   run: |
