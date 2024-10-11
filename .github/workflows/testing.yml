@@ -35,7 +35,31 @@ jobs:
     #       --name $VM_NAME \
     #       --command-id RunPowerShellScript \
     #       --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh > output.txt; cat output.txt' -Wait"
+    - name: Execute Commands via Bastion Host
+      run: |
+        # Create a PowerShell command to execute via Bastion
+        powershell_command=$(cat <<EOF
+        $Username = '${{ env.USERNAME }}'
+        $Password = ConvertTo-SecureString '${{ env.PASSWORD }}' -AsPlainText -Force
+        $Credential = New-Object System.Management.Automation.PSCredential($Username, $Password)
 
+        # Use the Bastion host to connect to the VM
+        $BastionHost = '${{ env.BASTION_HOST }}'
+        $VMName = '${{ env.VM_NAME }}'
+        $ResourceGroup = '${{ env.RESOURCE_GROUP }}'
+
+        # Connect to the VM via Bastion
+        Invoke-AzVMRunCommand -ResourceGroupName $ResourceGroup -VMName $VMName -CommandId 'RunPowerShellScript' -ScriptBlock {
+            cd 'C:\\Users\\karthik'
+            ls
+            ./echo.sh
+            echo "This is a new file" > karthik.txt
+        } -Credential $Credential
+EOF
+)
+
+        # Execute the PowerShell command
+        echo "$powershell_command" | pwsh
 
     - name: Execute Bash Script and Create File
       id: run_script
