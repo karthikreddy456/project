@@ -35,43 +35,26 @@ jobs:
     #       --name $VM_NAME \
     #       --command-id RunPowerShellScript \
     #       --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh > output.txt; cat output.txt' -Wait"
-    - name: Execute Commands via Bastion Host
-      run: |
-        # Create a PowerShell command to execute via Bastion
-        powershell_command=$(cat <<EOF
-        $Username = '${{ env.USERNAME }}'
-        $Password = ConvertTo-SecureString '${{ env.PASSWORD }}' -AsPlainText -Force
-        $Credential = New-Object System.Management.Automation.PSCredential($Username, $Password)
+  
 
-        # Use the Bastion host to connect to the VM
-        $BastionHost = '${{ env.BASTION_HOST }}'
-        $VMName = '${{ env.VM_NAME }}'
-        $ResourceGroup = '${{ env.RESOURCE_GROUP }}'
-
-        # Connect to the VM via Bastion
-        Invoke-AzVMRunCommand -ResourceGroupName $ResourceGroup -VMName $VMName -CommandId 'RunPowerShellScript' -ScriptBlock {
-            cd 'C:\\Users\\karthik'
-            ls
-            ./echo.sh
-            echo "This is a new file" > karthik.txt
-        } -Credential $Credential
-EOF
-)
-
-        # Execute the PowerShell command
-        echo "$powershell_command" | pwsh
-
-    - name: Execute Bash Script and Create File
+   - name: Check VM Connectivity and Execute Commands
       id: run_script
       run: |
+        # Check if the VM is running
+        az vm get-instance-view --resource-group $RESOURCE_GROUP --name $VM_NAME --query "powerState" -o tsv
+
+        # Run commands to change directory, list files, and run the echo.sh script
         output=$(az vm run-command invoke \
           --resource-group $RESOURCE_GROUP \
           --name $VM_NAME \
           --command-id RunPowerShellScript \
-          --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ./echo.sh; echo \"This is a new file\" > karthik.txt' -Wait" \
+          --scripts "Start-Process 'C:\\Program Files\\Git\\bin\\bash.exe' -ArgumentList '-c', 'cd /c/Users/karthik; ls; ./echo.sh; echo \"This is a new file\" > karthik.txt' -Wait" \
           --query "value[0].message" -o tsv)
-          
-        echo "Output from echo.sh: $output"
+
+        echo "Output from commands: $output"
+
+    - name: Display output
+      run: echo "${{ steps.run_script.outputs.output }}"
         
     - name: Display output
       run: echo "${{ steps.run_script.outputs.output }}"
