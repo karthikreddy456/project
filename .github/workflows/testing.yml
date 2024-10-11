@@ -1,1 +1,39 @@
+name: Azure VM Connection
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  connect-to-azure-vm:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Azure CLI
+      uses: azure/setup-cli@v1
+      
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set variables
+      run: |
+        echo "VM_NAME=windows" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP=Resourcegroup-test" >> $GITHUB_ENV
+        echo "BASTION_HOST=windows-vnet-bastion" >> $GITHUB_ENV
+        echo "USERNAME=karthik" >> $GITHUB_ENV
+        echo "PASSWORD=Karthik@2002" >> $GITHUB_ENV
+
+    - name: Connect to VM via Bastion
+      run: |
+        az vm run-command invoke \
+          --resource-group $RESOURCE_GROUP \
+          --name $VM_NAME \
+          --command-id RunPowerShellScript \
+          --scripts "Write-Host 'Executing command on VM'; Get-Service | Where-Object {$_.Status -eq 'Running'}"
 
